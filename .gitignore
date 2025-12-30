@@ -43,3 +43,9 @@ next-env.d.ts
 /app/generated/prisma
 basedatos-lacentral/
 .env
+
+# Dependencias de Node
+node_modules/
+
+# Archivos de sistema de Mac/Linux
+.DS_Store
