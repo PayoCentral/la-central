@@ -1,0 +1,83 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Roles de usuario (Escalable)
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+// Tipos de publicación (Tu ventaja competitiva)
+enum PostType {
+  OFERTA
+  CUPON
+  DISCUSION
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String   
+  image     String?  // Avatar
+  bio       String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  posts     Post[]
+  votes     Vote[]
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  type        PostType // ¿Es oferta, cupón o discusión?
+  
+  title       String
+  description String   @db.Text // Texto largo (Markdown)
+  
+  // UX Mejorada: Tienda separada del título
+  storeName   String?  // Ej: "Amazon Japón"
+  url         String?  
+
+  // Precios (Exactos y con soporte internacional)
+  price        Decimal? @db.Decimal(10, 2) // Precio final en MXN
+  foreignPrice Decimal? @db.Decimal(10, 2) // Ej: 5000 (Yenes)
+  currency     String?  // Ej: "JPY", "USD"
+  
+  couponCode   String?
+
+  // Multimedia
+  images       String[] // Todos pueden tener galería de fotos
+  
+  // Sistema de Temperatura
+  temperature  Int      @default(0) 
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id])
+  votes        Vote[]
+}
+
+model Vote {
+  id     String @id @default(uuid())
+  value  Int    // 1 (Caliente) o -1 (Frío)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  // Candado: Un usuario solo vota una vez por post
+  @@unique([userId, postId])
+}
