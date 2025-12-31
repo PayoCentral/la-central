@@ -5,6 +5,8 @@ import prisma from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { signIn } from '@/auth'
 import { AuthError } from 'next-auth'
+import { auth } from '@/auth'
+import { revalidatePath } from 'next/cache'
 
 
 export async function createPost(formData: FormData) {
@@ -64,4 +66,75 @@ export async function authenticate(
     // para redirigir al usuario. Debemos dejar pasar ese error.
     throw error
   }
+}
+
+export async function castVote(postId: string, value: 1 | -1) {
+  // 1. Verificar sesión
+  const session = await auth()
+  if (!session?.user?.email) throw new Error("Debes iniciar sesión para votar")
+
+  const currentUser = await prisma.user.findUnique({
+    where: { email: session.user.email }
+  })
+  if (!currentUser) throw new Error("Usuario no encontrado")
+
+  // 2. Buscar si ya existe un voto previo de este usuario en este post
+  const existingVote = await prisma.vote.findUnique({
+    where: {
+      userId_postId: {
+        userId: currentUser.id,
+        postId: postId
+      }
+    }
+  })
+
+  try {
+    // 3. Lógica de Temperatura (Transacción para asegurar consistencia)
+    await prisma.$transaction(async (tx) => {
+      let tempChange = 0
+
+      if (existingVote) {
+        if (existingVote.value === value) {
+          // CASO A: Votar lo mismo = Quitar el voto (Toggle)
+          await tx.vote.delete({ where: { id: existingVote.id } })
+          tempChange = -value // Restamos lo que habíamos sumado
+        } else {
+          // CASO B: Cambiar de opinión (de + a - ó viceversa)
+          await tx.vote.update({
+            where: { id: existingVote.id },
+            data: { value: value }
+          })
+          tempChange = value * 2 // El salto es doble (ej: de -1 a 1 hay 2 pasos)
+        }
+      } else {
+        // CASO C: Voto nuevo
+        await tx.vote.create({
+          data: {
+            userId: currentUser.id,
+            postId: postId,
+            value: value
+          }
+        })
+        tempChange = value
+      }
+
+      // 4. Actualizar la temperatura del Post
+      await tx.post.update({
+        where: { id: postId },
+        data: { temperature: { increment: tempChange } }
+      })
+    })
+
+    // 5. Refrescar la pantalla para ver el fuego al instante
+    revalidatePath('/')
+    
+  } catch (error) {
+    console.error("Error al votar:", error)
+    throw new Error("Error al procesar el voto")
+  }
+}
+
+import { signOut } from '@/auth'
+export async function logout() {
+  await signOut()
 }
