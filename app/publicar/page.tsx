@@ -2,10 +2,12 @@
 
 import { createPost } from '../actions'
 import { useState } from 'react'
+import ImageUpload from '../components/ImageUpload'
+
 
 export default function PublishPage() {
-  // Estado para controlar qué campos mostrar
   const [postType, setPostType] = useState('OFERTA')
+  const [imageUrl, setImageUrl] = useState('')
 
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -37,6 +39,10 @@ export default function PublishPage() {
               <option value="DISCUSION">💬 Discusión</option> {/* <--- NUEVO TIPO */}
             </select>
           </div>
+
+          {/* Subida de Imagen */}
+          <ImageUpload onImageUpload={(url: string) => setImageUrl(url)} />
+          <input type="hidden" name="imageUrl" value={imageUrl} />
 
           {/* --- CAMPOS CONDICIONALES --- */}
           {/* Solo mostramos Precio y Tienda si NO es discusión */}

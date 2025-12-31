@@ -18,6 +18,8 @@ export async function createPost(formData: FormData) {
   const storeName = formData.get('storeName') as string
   const url = formData.get('url') as string
   const isBug = formData.get('isBug') === 'on'
+  const imageUrl = formData.get('imageUrl') as string
+  const images = imageUrl ? [imageUrl] : ['https://placehold.co/600x400/png']
 
   // 2. Buscar al usuario Admin para asignarle el post (Temporal hasta que tengamos Login)
   const admin = await prisma.user.findUnique({
@@ -38,9 +40,10 @@ export async function createPost(formData: FormData) {
       price: price ? parseFloat(price.toString()) : null,
       authorId: admin.id,
       // Imágenes de prueba por defecto (luego haremos subida de archivos)
-      images: ['https://placehold.co/600x400/png'], 
+      images: images,
       isBug, // <--- Guardamos el booleano
       isExpired: false, // Por defecto nace viva
+      
     }
   })
 
