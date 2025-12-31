@@ -54,10 +54,29 @@ export default async function OfferDetail({ params }: { params: Promise<{ id: st
           
           <div className="flex flex-col md:flex-row">
             {/* 1. COLUMNA IMAGEN (Placeholder por ahora) */}
-            <div className="md:w-1/3 bg-gray-50 p-8 flex items-center justify-center border-r border-gray-100">
-                <div className="w-full aspect-square bg-white border rounded-xl flex items-center justify-center text-gray-300 text-6xl shadow-inner">
-                  {/* Aquí iría <img src={post.images[0]} /> cuando tengamos subida real */}
-                  📷
+            {/* 1. COLUMNA IMAGEN */}
+            <div className="md:w-1/3 bg-white p-4 md:p-8 flex items-center justify-center border-r border-gray-100">
+                <div className="w-full aspect-square bg-white border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center shadow-inner relative">
+                  
+                  {post.images.length > 0 ? (
+                    <img 
+                      src={post.images[0]} 
+                      alt={post.title} 
+                      // object-contain aquí es mejor para ver el producto completo sin recortar
+                      // pero si prefieres llenar el cuadro, usa object-cover
+                      className="w-full h-full object-contain p-2" 
+                    />
+                  ) : (
+                    <span className="text-gray-300 text-6xl">📷</span>
+                  )}
+                  
+                  {/* Etiqueta flotante de expirado sobre la imagen */}
+                  {post.isExpired && (
+                    <div className="absolute inset-0 bg-gray-900/10 flex items-center justify-center backdrop-blur-[2px]">
+                        <span className="bg-black text-white px-4 py-2 rounded-lg font-bold transform -rotate-12 border-2 border-white shadow-xl">AGOTADO</span>
+                    </div>
+                  )}
+
                 </div>
             </div>
 

@@ -69,13 +69,22 @@ export default async function Home() {
           return (
             <div key={post.id} className={`p-6 rounded-lg transition flex gap-6 ${cardStyle}`}>
                 {/* NUEVO: IMAGEN DE PORTADA */}
-                <div className="w-32 h-32 flex-shrink-0 bg-gray-50 rounded-md flex items-center justify-center p-2 border">
-                  {post.images.length > 0 ? (
-                    <img src={post.images[0]} alt="thumbnail" className="w-full h-full object-contain mix-blend-multiply"/>
-                  ) : (
-                    <span className="text-2xl">📷</span>
-                  )}
-                </div>
+                {/* IMAGEN DE PORTADA (Thumbnail) */}
+        <div className="w-32 h-32 flex-shrink-0 bg-white rounded-md flex items-center justify-center overflow-hidden border border-gray-200">
+          {post.images.length > 0 ? (
+            <img 
+              src={post.images[0]} 
+              alt={post.title} 
+              // CAMBIOS CLAVE AQUÍ:
+              // 1. object-cover: Hace zoom para llenar el cuadro (recorta excesos)
+              // 2. mix-blend-multiply: Se ve bien si el fondo es blanco, si es foto real a veces es mejor quitarlo.
+              //    Probemos sin mix-blend para fotos reales:
+              className="w-full h-full object-cover hover:scale-105 transition duration-500"
+            />
+          ) : (
+            <span className="text-4xl text-gray-300">📷</span>
+          )}
+        </div>
 
                 {/* CONTROL DE VOTOS (Lo movemos un poco para acomodar la imagen) */}
                 <VoteControl 
