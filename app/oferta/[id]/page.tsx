@@ -130,8 +130,8 @@ export default async function OfferDetail({ params }: { params: Promise<{ id: st
 
         {/* --- SECCIÓN COMENTARIOS --- */}
         <div className="mt-10 max-w-3xl mx-auto">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            💬 Comentarios <span className="text-gray-400 text-lg font-normal">({post.comments.length})</span>
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-900">
+            💬 Comentarios <span className="text-gray-400 text-lg font-normal ">({post.comments.length})</span>
           </h3>
 
           {/* Caja para escribir */}
@@ -141,7 +141,7 @@ export default async function OfferDetail({ params }: { params: Promise<{ id: st
                 <textarea 
                   name="content" 
                   rows={3} 
-                  className="w-full border-2 border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none shadow-sm"
+                  className="w-full text-gray-900 bg-white border-2 border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none shadow-sm"
                   placeholder="Escribe tu opinión, duda o agradecimiento..."
                   required
                 />

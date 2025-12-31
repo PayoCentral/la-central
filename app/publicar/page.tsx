@@ -8,13 +8,9 @@ export default function PublishPage() {
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
           📢 PUBLICAR OFERTA
         </h1>
-        
-        
-        
 
         <form action={createPost} className="space-y-4">
-          
-          {/* Título */}
+          {/* Bug Checkbox */}
           <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
           <input type="checkbox" name="isBug" id="isBug" className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500" />
           <label htmlFor="isBug" className="text-sm font-bold text-orange-800 cursor-pointer">
@@ -22,16 +18,17 @@ export default function PublishPage() {
           </label>
         </div>
         
+          {/* Título */}
           <div>
-            <label className="block text-sm font-medium text-blue-700">Título de la oferta</label>
+            <label className="block text-sm font-medium text-blue-700">Título de la publicación</label>
             <input name="title" required type="text" placeholder="Ej: Laptop Gamer 50% Off" 
-              className="mt-1 w-full p-2 border rounded-md" />
+              className="mt-1 w-full p-2 border rounded-md text-gray-900 bg-white" /> {/* <--- AQUÍ */}
           </div>
 
-          {/* Tipo (Select) */}
+          {/* Tipo */}
           <div>
             <label className="block text-sm font-medium text-blue-700">Tipo</label>
-            <select name="type" className="mt-1 w-full p-2 border rounded-md bg-white">
+            <select name="type" className="mt-1 w-full p-2 border rounded-md bg-white text-gray-900"> {/* <--- AQUÍ */}
               <option value="OFERTA">🔥 Oferta</option>
               <option value="CUPON">✂️ Cupón</option>
             </select>
@@ -41,28 +38,28 @@ export default function PublishPage() {
           <div>
             <label className="block text-sm font-medium text-blue-700">Precio (MXN)</label>
             <input name="price" type="number" step="0.01" placeholder="0.00" 
-              className="mt-1 w-full p-2 border rounded-md" />
+              className="mt-1 w-full p-2 border rounded-md text-gray-900 bg-white" /> {/* <--- AQUÍ */}
           </div>
 
           {/* Tienda */}
           <div>
             <label className="block text-sm font-medium text-blue-700">Nombre de la Tienda</label>
             <input name="storeName" type="text" placeholder="Ej: Amazon, Liverpool" 
-              className="mt-1 w-full p-2 border rounded-md" />
+              className="mt-1 w-full p-2 border rounded-md text-gray-900 bg-white" />
           </div>
 
           {/* URL */}
           <div>
             <label className="block text-sm font-medium text-blue-700">Enlace (URL)</label>
             <input name="url" type="url" placeholder="https://..." 
-              className="mt-1 w-full p-2 border rounded-md" />
+              className="mt-1 w-full p-2 border rounded-md text-blue-900 bg-white" />
           </div>
 
           {/* Descripción */}
           <div>
             <label className="block text-sm font-medium text-blue-700">Descripción</label>
             <textarea name="description" rows={3} required placeholder="Detalles de la oferta..." 
-              className="mt-1 w-full p-2 border rounded-md"></textarea>
+              className="mt-1 w-full p-2 border rounded-md text-blue-900 bg-white" ></textarea>
           </div>
 
           <button type="submit" 
