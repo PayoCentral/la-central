@@ -3,6 +3,9 @@
 
 import prisma from '@/lib/prisma'
 import { redirect } from 'next/navigation'
+import { signIn } from '@/auth'
+import { AuthError } from 'next-auth'
+
 
 export async function createPost(formData: FormData) {
   // 1. Extraer datos del formulario HTML
@@ -38,4 +41,27 @@ export async function createPost(formData: FormData) {
 
   // 4. Redirigir al inicio para ver la oferta nueva
   redirect('/')
+}
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    // Intentamos loguearnos con las credenciales del formulario
+    await signIn('credentials', formData)
+  } catch (error) {
+    // Si hay un error, verificamos de qué tipo es
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Credenciales inválidas. Revisa tu correo o contraseña.'
+        default:
+          return 'Algo salió mal. Inténtalo de nuevo.'
+      }
+    }
+    // IMPORTANTE: Next.js lanza un error "NEXT_REDIRECT" cuando el login es exitoso
+    // para redirigir al usuario. Debemos dejar pasar ese error.
+    throw error
+  }
 }
