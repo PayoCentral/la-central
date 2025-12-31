@@ -7,6 +7,7 @@ import { signIn } from '@/auth'
 import { AuthError } from 'next-auth'
 import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
+import bcrypt from 'bcryptjs'
 
 
 export async function createPost(formData: FormData) {
@@ -142,7 +143,7 @@ export async function castVote(postId: string, value: 1 | -1) {
 
 import { signOut } from '@/auth'
 export async function logout() {
-  await signOut()
+  await signOut({ redirectTo: "/" })
 }
 
 export async function addComment(postId: string, formData: FormData) {
@@ -168,4 +169,45 @@ export async function addComment(postId: string, formData: FormData) {
 
   // Revalidar la ruta específica de la oferta para ver el comentario nuevo
   revalidatePath(`/oferta/${postId}`)
+}
+
+// app/actions.ts (Busca la función register al final)
+
+export async function register(prevState: string | undefined, formData: FormData) {
+  try {
+    const name = formData.get('name') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    
+    if (!name || !email || !password) {return 'Por favor llena todos los campos.'}
+    
+    if (password.length < 8) {return 'La contraseña debe tener al menos 8 caracteres.'}
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (existingUser) {
+      return 'Este correo ya está registrado.'
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    await prisma.user.create({
+      data: {
+        username: name,
+        email,
+        password: hashedPassword,
+        role: 'USER',
+        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+      }
+    })
+
+  } catch (error) {
+    console.error('Error en registro:', error)
+    return 'Ocurrió un error al crear tu cuenta.'
+  }
+
+  // MOVEIMOS EL REDIRECT AQUÍ AFUERA (Si llega aquí, es éxito)
+  redirect('/login?registered=true')
 }

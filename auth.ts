@@ -31,11 +31,7 @@ export const { auth, signIn, signOut } = NextAuth({
           // Por ahora haremos una comparación directa SOLO para probar, luego lo arreglamos.
           
           // MODO DESARROLLO (Comparación insegura temporal para que te funcione con tu seed actual):
-          const passwordsMatch = password === user.password; 
-          
-          // MODO PRODUCCIÓN (Lo correcto):
-          // const passwordsMatch = await bcrypt.compare(password, user.password);
-
+          const passwordsMatch = await bcrypt.compare(password, user.password); 
           if (passwordsMatch) return user;
         }
 

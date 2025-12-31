@@ -61,7 +61,9 @@ export default function LoginPage() {
           
           <div className="text-center text-gray-400">
             ¿No tienes cuenta?
-            <span className="font-bold text-black ml-2">Pídele acceso a Payo</span>
+            <Link href="/registro" className="font-bold text-black ml-2 hover:underline">
+              Regístrate gratis
+            </Link>
           </div>
         </div>
 
