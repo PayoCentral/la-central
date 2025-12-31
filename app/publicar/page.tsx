@@ -6,13 +6,22 @@ export default function PublishPage() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          📢 Publicar Oferta
+          📢 PUBLICAR OFERTA
         </h1>
+        
+        
         
 
         <form action={createPost} className="space-y-4">
           
           {/* Título */}
+          <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+          <input type="checkbox" name="isBug" id="isBug" className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500" />
+          <label htmlFor="isBug" className="text-sm font-bold text-orange-800 cursor-pointer">
+            ⚠️ ¿Es un error de precio? (Bug)
+          </label>
+        </div>
+        
           <div>
             <label className="block text-sm font-medium text-blue-700">Título de la oferta</label>
             <input name="title" required type="text" placeholder="Ej: Laptop Gamer 50% Off" 

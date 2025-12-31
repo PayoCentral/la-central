@@ -17,6 +17,7 @@ export async function createPost(formData: FormData) {
   const type = formData.get('type') as 'OFERTA' | 'CUPON'
   const storeName = formData.get('storeName') as string
   const url = formData.get('url') as string
+  const isBug = formData.get('isBug') === 'on'
 
   // 2. Buscar al usuario Admin para asignarle el post (Temporal hasta que tengamos Login)
   const admin = await prisma.user.findUnique({
@@ -38,6 +39,8 @@ export async function createPost(formData: FormData) {
       authorId: admin.id,
       // Imágenes de prueba por defecto (luego haremos subida de archivos)
       images: ['https://placehold.co/600x400/png'], 
+      isBug, // <--- Guardamos el booleano
+      isExpired: false, // Por defecto nace viva
     }
   })
 
@@ -137,4 +140,29 @@ export async function castVote(postId: string, value: 1 | -1) {
 import { signOut } from '@/auth'
 export async function logout() {
   await signOut()
+}
+
+export async function addComment(postId: string, formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.email) throw new Error("Debes iniciar sesión")
+
+  const content = formData.get('content') as string
+  if (!content || content.trim() === "") return
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email }
+  })
+
+  if (!user) throw new Error("Usuario no encontrado")
+
+  await prisma.comment.create({
+    data: {
+      content,
+      postId,
+      userId: user.id
+    }
+  })
+
+  // Revalidar la ruta específica de la oferta para ver el comentario nuevo
+  revalidatePath(`/oferta/${postId}`)
 }

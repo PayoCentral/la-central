@@ -34,6 +34,7 @@ model User {
 
   posts     Post[]
   votes     Vote[]
+  comments      Comment[]
 }
 
 model Post {
@@ -66,6 +67,9 @@ model Post {
   authorId     String
   author       User     @relation(fields: [authorId], references: [id])
   votes        Vote[]
+  comments      Comment[] 
+  isExpired     Boolean   @default(false) // ¿Ya caducó?
+  isBug         Boolean   @default(false) // ¿Es un error de precio?
 }
 
 model Vote {
@@ -80,4 +84,16 @@ model Vote {
 
   // Candado: Un usuario solo vota una vez por post
   @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }

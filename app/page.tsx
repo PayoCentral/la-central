@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { auth } from '@/auth' // Importamos auth para saber quién visita
 import VoteControl from './components/VoteControl'
 import { logout } from './actions' // Importamos la acción de logout
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,32 +62,59 @@ export default async function Home() {
 
       <div className="max-w-4xl mx-auto grid gap-6">
         {posts.map((post) => {
-          // Calculamos si el usuario actual ya votó (1, -1 o 0)
-          const myVote = post.votes[0]?.value || 0
-
+          const myVote = post.votes[0]?.value || 0  // Calculamos si el usuario actual ya votó (1, -1 o 0)
+          let cardStyle = "bg-white shadow-md hover:shadow-xl" // Estilo normal
+          if (post.isBug) {cardStyle = "bg-orange-100 border-2 border-orange-400 shadow-md hover:shadow-orange-300/50" } // Estilo Bug
+          if (post.isExpired) {cardStyle = "bg-gray-100 opacity-60 grayscale shadow-none border border-gray-200"}  // Estilo Expirada
           return (
-            <div key={post.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition flex">
-              
-              {/* AQUÍ VA EL COMPONENTE DE VOTOS */}
-              <VoteControl 
-                postId={post.id} 
-                temperature={post.temperature} 
-                initialUserVote={myVote} 
-              />
+            <div key={post.id} className={`p-6 rounded-lg transition flex gap-6 ${cardStyle}`}>
+                {/* NUEVO: IMAGEN DE PORTADA */}
+                <div className="w-32 h-32 flex-shrink-0 bg-gray-50 rounded-md flex items-center justify-center p-2 border">
+                  {post.images.length > 0 ? (
+                    <img src={post.images[0]} alt="thumbnail" className="w-full h-full object-contain mix-blend-multiply"/>
+                  ) : (
+                    <span className="text-2xl">📷</span>
+                  )}
+                </div>
 
-              {/* El resto del contenido de la tarjeta */}
+                {/* CONTROL DE VOTOS (Lo movemos un poco para acomodar la imagen) */}
+                <VoteControl 
+                  postId={post.id} 
+                  temperature={post.temperature} 
+                  initialUserVote={myVote} 
+                />
+
               <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className={`text-xs font-bold px-2 py-1 rounded text-white ${
-                      post.type === 'OFERTA' ? 'bg-orange-500' : 'bg-green-600'
-                    }`}>
-                      {post.type}
+            <div className="flex justify-between items-start">
+              <div>
+                {/* ETIQUETAS DE TIPO */}
+                <div className="flex gap-2 mb-2">
+                  <span className={`text-xs font-bold px-2 py-1 rounded text-white ${
+                    post.type === 'OFERTA' ? 'bg-orange-500' : 'bg-green-600'
+                  }`}>
+                    {post.type}
+                  </span>
+
+                  {/* ETIQUETA BUG */}
+                  {post.isBug && !post.isExpired && (
+                    <span className="text-xs font-bold px-2 py-1 rounded bg-red-600 text-white animate-pulse">
+                      🐛 BUG / ERROR
                     </span>
-                    <h2 className="text-2xl font-bold mt-2">{post.title}</h2>
-                    <p className="text-gray-600 mt-1">{post.description}</p>
-                    
-                    {/* ... resto del código de la tarjeta ... */}
+                  )}
+
+                  {/* ETIQUETA EXPIRADO */}
+                  {post.isExpired && (
+                    <span className="text-xs font-bold px-2 py-1 rounded bg-gray-600 text-white">
+                      💀 EXPIRADO
+                    </span>
+                  )}
+                </div>
+
+                {/* Título y Descripción ... */}
+                {/* IMPORTANTE: Si está expirado, quitamos el enlace o lo tachamos visualmente */}
+                <h2 className={`text-2xl font-bold mt-1 ${post.isExpired ? 'line-through text-gray-500' : ''}`}>
+                  {post.title}
+                </h2>
 
                     <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
                       <span>🏪 {post.storeName}</span>
