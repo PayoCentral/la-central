@@ -89,12 +89,13 @@ export default async function Home() {
               <div>
                 {/* ETIQUETAS DE TIPO */}
                 <div className="flex gap-2 mb-2">
-                  <span className={`text-xs font-bold px-2 py-1 rounded text-white ${
-                    post.type === 'OFERTA' ? 'bg-orange-500' : 'bg-green-600'
-                  }`}>
+                <span className={`text-xs font-bold px-2 py-1 rounded text-white ${
+                    post.type === 'OFERTA' ? 'bg-orange-500' : 
+                    post.type === 'CUPON' ? 'bg-green-600' : 
+                    'bg-purple-600' // <--- Color para DISCUSIÓN
+                }`}>
                     {post.type}
-                  </span>
-
+                </span>
                   {/* ETIQUETA BUG */}
                   {post.isBug && !post.isExpired && (
                     <span className="text-xs font-bold px-2 py-1 rounded bg-red-600 text-white animate-pulse">
