@@ -5,16 +5,27 @@ import { logout } from './actions' // Importamos la acción de logout
 
 export const dynamic = 'force-dynamic'
 
+// app/page.tsx
+
 export default async function Home() {
   const session = await auth()
+
+  // Calculamos la fecha límite (Hace 30 días)
+  const hace30dias = new Date()
+  hace30dias.setDate(hace30dias.getDate() - 30)
   
-  // 1. Buscamos posts e incluimos los votos del usuario actual (si existe)
-const posts = await prisma.post.findMany({
-    // CAMBIO 1: Ordenar primero por temperatura (descendente) y luego por fecha
+  const posts = await prisma.post.findMany({
+    where: {
+      // FILTRO DE TIEMPO: Solo posts creados después de hace 30 días
+      createdAt: {
+        gte: hace30dias
+      }
+    },
     orderBy: [
       { temperature: 'desc' }, 
       { createdAt: 'desc' }
     ],
+    // ... include author y votes siguen igual ...
     include: { 
       author: true,
       votes: {
@@ -83,28 +94,63 @@ const posts = await prisma.post.findMany({
                     </div>
                   </div>
 
-                  {/* COLUMNA DERECHA: Precio y Botón */}
-                  <div className="text-right flex flex-col items-end gap-2"> {/* Agregamos flex-col para apilar */}
-                    
-                    {post.price && (
-                      <p className="text-3xl font-bold text-green-700">
-                        ${Number(post.price).toFixed(2)}
-                      </p>
-                    )}
-                    
-                    {/* ... precios en otra moneda y cupones siguen aquí ... */}
+                {/* COLUMNA DERECHA: Precio y Botón */}
+                <div className="text-right flex flex-col items-end gap-1"> {/* reduje el gap a 1 para que se vea mas pegadito */}
 
-                    {/* CAMBIO 2: EL BOTÓN "IR A LA OFERTA" */}
+                  {/* 1. PRECIO PRINCIPAL (MXN) */}
+                  {post.price && (
+                    <p className="text-3xl font-bold text-green-700">
+                      ${Number(post.price).toFixed(2)}
+                    </p>
+                  )}
+
+                  {/* 2. LÓGICA DE PRECIO SECUNDARIO (Original o Extranjero) */}
+                  {post.foreignPrice && (
+                    <div className="text-sm text-gray-500">
+                      {(!post.currency || post.currency === 'MXN') ? (
+                        /* CASO A: Es Pesos (MXN). Si el precio anterior es mayor, es una OFERTA REAL -> Tachado */
+                        Number(post.foreignPrice) > Number(post.price) && (
+                          <span className="line-through text-gray-400">
+                            ${Number(post.foreignPrice).toFixed(2)}
+                          </span>
+                        )
+                      ) : (
+                        /* CASO B: Es Moneda Extranjera. Mostramos el símbolo correcto y NO lo tachamos (es referencia) */
+                        <span className="flex items-center gap-1">
+                          {/* Mapa rápido de símbolos */}
+                          {post.currency === 'JPY' ? '¥' : 
+                          post.currency === 'EUR' ? '€' : 
+                          post.currency === 'USD' ? '$' : '$'}
+                          
+                          {Number(post.foreignPrice).toLocaleString()} 
+                          <span className="text-xs font-bold ml-1 border px-1 rounded bg-gray-100">
+                            {post.currency}
+                          </span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 3. CUPÓN */}
+                  {post.couponCode && (
+                    <div className="mt-1 border-2 border-dashed border-green-500 bg-green-50 px-3 py-1 rounded font-mono text-green-700 font-bold text-xs">
+                      🎟️ {post.couponCode}
+                    </div>
+                  )}
+
+                  {/* 4. BOTÓN (Solo si hay URL) */}
+                  {post.url && (
                     <a 
-                      href={post.url ?? undefined} 
+                      href={post.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow text-sm flex items-center gap-2"
                     >
                       Ver Oferta ↗
                     </a>
+                  )}
 
-                  </div>
+                </div>
                 </div>
               </div>
             </div>
