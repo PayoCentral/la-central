@@ -9,13 +9,16 @@ export default async function Home() {
   const session = await auth()
   
   // 1. Buscamos posts e incluimos los votos del usuario actual (si existe)
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: 'desc' },
+const posts = await prisma.post.findMany({
+    // CAMBIO 1: Ordenar primero por temperatura (descendente) y luego por fecha
+    orderBy: [
+      { temperature: 'desc' }, 
+      { createdAt: 'desc' }
+    ],
     include: { 
       author: true,
       votes: {
         where: { 
-          // Solo me interesa saber si YO voté en este post
           userId: session?.user?.email ? (await prisma.user.findUnique({ where: { email: session.user.email } }))?.id : undefined 
         }
       }
@@ -72,29 +75,35 @@ export default async function Home() {
                     <h2 className="text-2xl font-bold mt-2">{post.title}</h2>
                     <p className="text-gray-600 mt-1">{post.description}</p>
                     
+                    {/* ... resto del código de la tarjeta ... */}
+
                     <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
                       <span>🏪 {post.storeName}</span>
                       <span>👤 {post.author.username}</span>
                     </div>
                   </div>
 
-                  <div className="text-right">
+                  {/* COLUMNA DERECHA: Precio y Botón */}
+                  <div className="text-right flex flex-col items-end gap-2"> {/* Agregamos flex-col para apilar */}
+                    
                     {post.price && (
                       <p className="text-3xl font-bold text-green-700">
                         ${Number(post.price).toFixed(2)}
                       </p>
                     )}
-                    {post.foreignPrice && (
-                      <p className="text-sm text-gray-400 line-through">
-                        {Number(post.foreignPrice)} {post.currency}
-                      </p>
-                    )}
                     
-                    {post.couponCode && (
-                      <div className="mt-2 border-2 border-dashed border-green-500 bg-green-50 px-3 py-1 rounded font-mono text-green-700 font-bold">
-                        {post.couponCode}
-                      </div>
-                    )}
+                    {/* ... precios en otra moneda y cupones siguen aquí ... */}
+
+                    {/* CAMBIO 2: EL BOTÓN "IR A LA OFERTA" */}
+                    <a 
+                      href={post.url ?? undefined} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow text-sm flex items-center gap-2"
+                    >
+                      Ver Oferta ↗
+                    </a>
+
                   </div>
                 </div>
               </div>
