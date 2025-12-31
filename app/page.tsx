@@ -112,15 +112,18 @@ export default async function Home() {
 
                 {/* Título y Descripción ... */}
                 {/* IMPORTANTE: Si está expirado, quitamos el enlace o lo tachamos visualmente */}
+                <Link href={`/oferta/${post.id}`}>
                 <h2 className={`text-2xl font-bold mt-1 ${post.isExpired ? 'line-through text-gray-500' : ''}`}>
                   {post.title}
                 </h2>
+                </Link>
 
                     <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
                       <span>🏪 {post.storeName}</span>
                       <span>👤 {post.author.username}</span>
                     </div>
                   </div>
+                  
 
                 {/* COLUMNA DERECHA: Precio y Botón */}
                 <div className="text-right flex flex-col items-end gap-1"> {/* reduje el gap a 1 para que se vea mas pegadito */}
